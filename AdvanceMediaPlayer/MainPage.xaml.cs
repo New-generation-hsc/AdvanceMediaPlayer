@@ -25,7 +25,8 @@ namespace AdvanceMediaPlayer
     /// 可用于自身或导航至 Frame 内部的空白页。
     /// </summary>
     public sealed partial class MainPage : Page
-    {
+    { 
+
         public MainPage()
         {
             this.InitializeComponent();
@@ -66,6 +67,7 @@ namespace AdvanceMediaPlayer
 
         private async void AutoSuggestBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
         {
+            //var myMusic = await Windows.Storage.StorageLibrary.GetLibraryAsync(Windows.Storage.KnownLibraryId.Music);
             String inputURL = queryURL.Text;
             if (inputURL.Length == 0)
                 return;
@@ -75,6 +77,7 @@ namespace AdvanceMediaPlayer
                 PlayOnline();
                 return;
             }
+            //HttpDownloadFile(inputURL, myMusic.SaveFolder.Path, true);
             await StartDownload();
         }
 
@@ -87,6 +90,7 @@ namespace AdvanceMediaPlayer
         {
             player.Source = MediaSource.CreateFromUri(new Uri("http://www.neu.edu.cn/indexsource/neusong.mp3"));
             player.MediaPlayer.Play();
+            
         }
 
         
@@ -126,18 +130,16 @@ namespace AdvanceMediaPlayer
                 return;
 
             errlog.Text = "文件开始下载，请耐心等待";
+            var fileName = inputURL.Substring(inputURL.LastIndexOf('/') + 1);
             StorageFile destinationFile = await KnownFolders.MusicLibrary.CreateFileAsync(
-                   RandomString(4) + ".mp3", CreationCollisionOption.GenerateUniqueName);
-
+                   fileName, CreationCollisionOption.GenerateUniqueName);
+            filePath = destinationFile;
             using (WebClient client = new WebClient())
             {
                 client.DownloadFileAsync(new Uri(inputURL.Trim()), destinationFile.Path);
                 client.DownloadProgressChanged += client_DownloadProgressChanged;
                 client.DownloadFileCompleted += client_DownloadFileCompleted;
-            }
-
-            player.Source = MediaSource.CreateFromStorageFile(destinationFile);
-            player.MediaPlayer.Play();
+            }  
         }
 
         void client_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
@@ -149,9 +151,11 @@ namespace AdvanceMediaPlayer
         {
             progressBar.Value = 0;
             errlog.Text = "文件下载完成，马上开始播放";
+            player.Source = MediaSource.CreateFromStorageFile(filePath);
+            player.MediaPlayer.Play();
         }*/
 
-         /*
+        
         private void HttpDownloadFile(string url, string path, bool overwrite, Action<string, long, long> callback = null)
         {
             errlog.Text = "文件开始下载，请耐心等待";
@@ -186,11 +190,12 @@ namespace AdvanceMediaPlayer
             errlog.Text = "文件下载完成，马上开始播放";
         }
 
+        /*
         private void updateProgress(String fileName, long total, long length)
         {
             progressBar.Value = length / total;
-        }
+        }*/
 
-         */
+        
     }
 }
