@@ -40,21 +40,12 @@
                 </Grid.ColumnDefinitions>
                 <Image Grid.Column="0" Source="Assets/headphones.png" Width="32" Height="32" Margin="20 5 0 0" />
                 <Image Grid.Column="1" Source="Assets/play-button.png" Width="32" Height="32" Margin="20 5 0 0 " />
-                <RadioButton Grid.Column="3" Content="在线" Tag="online" GroupName="playMode" Width="100" ></RadioButton>
+                <RadioButton Grid.Column="3" Content="在线" Tag="online" GroupName="playMode" Width="100"  Name="online"></RadioButton>
                 <RadioButton Grid.Column="4" Content="离线" Tag="offline" GroupName="playMode" IsChecked="True"></RadioButton>
             </Grid>
         </Border>
         <MediaPlayerElement Grid.Row="2" x:Name="player" AreTransportControlsEnabled="True"/>
-        
-        <Grid Grid.Row="3">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"></ColumnDefinition>
-                <ColumnDefinition Width="100"></ColumnDefinition>
-                <ColumnDefinition Width="Auto"></ColumnDefinition>
-            </Grid.ColumnDefinitions>
-            <TextBlock Grid.Column="0" Name="errlog"></TextBlock>
-            <ProgressBar Grid.Column="1" Width="130" Value="0"  Name="progressBar"/>
-            <TextBlock Grid.Column="2" Text="下载进度" Margin="50 0 50 0"  Name="downloadText"></TextBlock>
-        </Grid>
+
+        <TextBlock Grid.Row="3" Name="errlog"></TextBlock>
     </Grid>
 </Page>

@@ -69,10 +69,13 @@ namespace AdvanceMediaPlayer
             String inputURL = queryURL.Text;
             if (inputURL.Length == 0)
                 return;
-
-            var musicLibrary = await StorageLibrary.GetLibraryAsync(KnownLibraryId.Music);
-            HttpDownloadFile(inputURL.Trim(), musicLibrary.SaveFolder.Path, true, updateProgress);
-            errlog.Text = "finished";
+            if (online.IsChecked == true)
+            {
+                errlog.Text = "开始在线播放";
+                PlayOnline();
+                return;
+            }
+            await StartDownload();
         }
 
         private void AutoSuggestBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
@@ -80,7 +83,13 @@ namespace AdvanceMediaPlayer
             errlog.Text = "";
         }
 
-        /*
+        private void PlayOnline()
+        {
+            player.Source = MediaSource.CreateFromUri(new Uri("http://www.neu.edu.cn/indexsource/neusong.mp3"));
+            player.MediaPlayer.Play();
+        }
+
+        
         private async System.Threading.Tasks.Task StartDownload()
         {
             String inputURL = queryURL.Text;
@@ -97,6 +106,7 @@ namespace AdvanceMediaPlayer
                 BackgroundDownloader downloader = new BackgroundDownloader();
                 DownloadOperation download = downloader.CreateDownload(source, destinationFile);
 
+                await download.StartAsync();
                 // Attach progress and completion handlers.
                 errlog.Text = "文件下载完成，马上开始播放";
                 player.Source = MediaSource.CreateFromStorageFile(destinationFile);
@@ -106,7 +116,7 @@ namespace AdvanceMediaPlayer
             {
                 errlog.Text = "文件下载失败，请检查输入网址是否错误";
             }
-        }*/
+        }
 
         /*
         async private System.Threading.Tasks.Task StartDownload()
@@ -141,8 +151,10 @@ namespace AdvanceMediaPlayer
             errlog.Text = "文件下载完成，马上开始播放";
         }*/
 
-        private  void HttpDownloadFile(string url, string path, bool overwrite, Action<string, long, long> callback = null)
+         /*
+        private void HttpDownloadFile(string url, string path, bool overwrite, Action<string, long, long> callback = null)
         {
+            errlog.Text = "文件开始下载，请耐心等待";
             // 设置参数
             HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
             //发送请求并获取相应回应数据
@@ -170,11 +182,15 @@ namespace AdvanceMediaPlayer
                     }
                 }
             }
+
+            errlog.Text = "文件下载完成，马上开始播放";
         }
 
         private void updateProgress(String fileName, long total, long length)
         {
             progressBar.Value = length / total;
         }
+
+         */
     }
 }
