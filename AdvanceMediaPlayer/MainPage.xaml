@@ -23,7 +23,7 @@
                     <ColumnDefinition Width="Auto"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Column="0" Text="媒体播放器" FontSize="24" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="20 0 0 0"></TextBlock>
-                <AutoSuggestBox Grid.Column="2" QueryIcon="Find" Width="300" VerticalAlignment="Center" Margin="0 0 20 0"></AutoSuggestBox>
+                <AutoSuggestBox Grid.Column="2" QueryIcon="Find" Width="300" VerticalAlignment="Center" Margin="0 0 20 0" QuerySubmitted="AutoSuggestBox_QuerySubmitted" TextChanged="AutoSuggestBox_TextChanged" Name="queryURL"></AutoSuggestBox>
                 <Button Grid.Column="3" Height="32" Width="32" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Padding="0" BorderThickness="0" Margin="0 0 10 0" Background="Transparent" Click="FileChooseClick">
                     <Image Source="Assets/newOpen.png" Stretch="UniformToFill"/>
                 </Button>
@@ -41,10 +41,20 @@
                 <Image Grid.Column="0" Source="Assets/headphones.png" Width="32" Height="32" Margin="20 5 0 0" />
                 <Image Grid.Column="1" Source="Assets/play-button.png" Width="32" Height="32" Margin="20 5 0 0 " />
                 <RadioButton Grid.Column="3" Content="在线" Tag="online" GroupName="playMode" Width="100" ></RadioButton>
-                <RadioButton Grid.Column="4" Content="离线" Tag="offline" GroupName="playMode"></RadioButton>
+                <RadioButton Grid.Column="4" Content="离线" Tag="offline" GroupName="playMode" IsChecked="True"></RadioButton>
             </Grid>
         </Border>
         <MediaPlayerElement Grid.Row="2" x:Name="player" AreTransportControlsEnabled="True"/>
-        <TextBlock Grid.Row="3" Name="errlog"></TextBlock>
+        
+        <Grid Grid.Row="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="100"></ColumnDefinition>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Name="errlog"></TextBlock>
+            <ProgressBar Grid.Column="1" Width="130" Value="0"  Name="progressBar"/>
+            <TextBlock Grid.Column="2" Text="下载进度" Margin="50 0 50 0"  Name="downloadText"></TextBlock>
+        </Grid>
     </Grid>
 </Page>

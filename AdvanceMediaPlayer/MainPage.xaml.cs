@@ -2,9 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.Media.Core;
+using Windows.Networking.BackgroundTransfer;
+using Windows.Storage;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -27,9 +31,150 @@ namespace AdvanceMediaPlayer
             this.InitializeComponent();
         }
 
-        private void FileChooseClick(object sender, RoutedEventArgs e)
-        {
+        private static Random random = new Random();
 
+        public static string RandomString(int length)
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            return new string(Enumerable.Repeat(chars, length)
+              .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+
+        private async void FileChooseClick(object sender, RoutedEventArgs e)
+        {
+            await SetLocalMedia();
+        }
+
+        async private System.Threading.Tasks.Task SetLocalMedia()
+        {
+            var openPicker = new Windows.Storage.Pickers.FileOpenPicker();
+
+            openPicker.FileTypeFilter.Add(".wmv");
+            openPicker.FileTypeFilter.Add(".mp4");
+            openPicker.FileTypeFilter.Add(".wma");
+            openPicker.FileTypeFilter.Add(".mp3");
+
+            var file = await openPicker.PickSingleFileAsync();
+
+            // mediaPlayer is a MediaPlayerElement defined in XAML
+            if (file != null)
+            {
+                player.Source = MediaSource.CreateFromStorageFile(file);
+                player.MediaPlayer.Play();
+            }
+        }
+
+        private async void AutoSuggestBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
+        {
+            String inputURL = queryURL.Text;
+            if (inputURL.Length == 0)
+                return;
+
+            var musicLibrary = await StorageLibrary.GetLibraryAsync(KnownLibraryId.Music);
+            HttpDownloadFile(inputURL.Trim(), musicLibrary.SaveFolder.Path, true, updateProgress);
+            errlog.Text = "finished";
+        }
+
+        private void AutoSuggestBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+        {
+            errlog.Text = "";
+        }
+
+        /*
+        private async System.Threading.Tasks.Task StartDownload()
+        {
+            String inputURL = queryURL.Text;
+            if (inputURL.Length == 0)
+                return;
+
+            try
+            {
+                errlog.Text = "文件开始下载，请耐心等待";
+                Uri source = new Uri(inputURL);
+
+                StorageFile destinationFile = await KnownFolders.MusicLibrary.CreateFileAsync(
+                   RandomString(4) + ".mp3", CreationCollisionOption.GenerateUniqueName);
+                BackgroundDownloader downloader = new BackgroundDownloader();
+                DownloadOperation download = downloader.CreateDownload(source, destinationFile);
+
+                // Attach progress and completion handlers.
+                errlog.Text = "文件下载完成，马上开始播放";
+                player.Source = MediaSource.CreateFromStorageFile(destinationFile);
+                player.MediaPlayer.Play();
+            }
+            catch (Exception ex)
+            {
+                errlog.Text = "文件下载失败，请检查输入网址是否错误";
+            }
+        }*/
+
+        /*
+        async private System.Threading.Tasks.Task StartDownload()
+        {
+            String inputURL = queryURL.Text;
+            if (inputURL.Length == 0)
+                return;
+
+            errlog.Text = "文件开始下载，请耐心等待";
+            StorageFile destinationFile = await KnownFolders.MusicLibrary.CreateFileAsync(
+                   RandomString(4) + ".mp3", CreationCollisionOption.GenerateUniqueName);
+
+            using (WebClient client = new WebClient())
+            {
+                client.DownloadFileAsync(new Uri(inputURL.Trim()), destinationFile.Path);
+                client.DownloadProgressChanged += client_DownloadProgressChanged;
+                client.DownloadFileCompleted += client_DownloadFileCompleted;
+            }
+
+            player.Source = MediaSource.CreateFromStorageFile(destinationFile);
+            player.MediaPlayer.Play();
+        }
+
+        void client_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
+        { 
+            progressBar.Value = e.ProgressPercentage;
+        }
+
+        void client_DownloadFileCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
+        {
+            progressBar.Value = 0;
+            errlog.Text = "文件下载完成，马上开始播放";
+        }*/
+
+        private  void HttpDownloadFile(string url, string path, bool overwrite, Action<string, long, long> callback = null)
+        {
+            // 设置参数
+            HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
+            //发送请求并获取相应回应数据
+            HttpWebResponse response = request.GetResponse() as HttpWebResponse;
+            //获取文件名
+            string fileName = response.Headers["Content-Disposition"];//attachment;filename=FileName.txt
+            if (string.IsNullOrEmpty(fileName))
+                fileName = response.ResponseUri.Segments[response.ResponseUri.Segments.Length - 1];
+            else
+                fileName = fileName.Remove(0, fileName.IndexOf("filename=") + 9);
+
+            //直到request.GetResponse()程序才开始向目标网页发送Post请求
+            using (Stream responseStream = response.GetResponseStream())
+            {
+                long totalLength = response.ContentLength;
+                //创建本地文件写入流
+                using (Stream stream = new FileStream(Path.Combine(path, fileName), overwrite ? FileMode.Create : FileMode.CreateNew))
+                {
+                    byte[] bArr = new byte[1024];
+                    int size;
+                    while ((size = responseStream.Read(bArr, 0, bArr.Length)) > 0)
+                    {
+                        stream.Write(bArr, 0, size);
+                        callback?.Invoke(fileName, totalLength, stream.Length);
+                    }
+                }
+            }
+        }
+
+        private void updateProgress(String fileName, long total, long length)
+        {
+            progressBar.Value = length / total;
         }
     }
 }
