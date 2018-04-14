@@ -26,5 +26,10 @@ namespace AdvanceMediaPlayer
         {
             this.InitializeComponent();
         }
+
+        private void FileChooseClick(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

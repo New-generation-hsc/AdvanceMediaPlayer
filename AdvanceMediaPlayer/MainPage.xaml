@@ -7,7 +7,44 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Margin="0 10 0 0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Border Grid.Row="0" BorderThickness="0, 0, 0, 1" BorderBrush="#E8E8E8">
+            <Grid Margin="0 0 0 5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="媒体播放器" FontSize="24" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="20 0 0 0"></TextBlock>
+                <AutoSuggestBox Grid.Column="2" QueryIcon="Find" Width="300" VerticalAlignment="Center" Margin="0 0 20 0"></AutoSuggestBox>
+                <Button Grid.Column="3" Height="32" Width="32" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Padding="0" BorderThickness="0" Margin="0 0 10 0" Background="Transparent" Click="FileChooseClick">
+                    <Image Source="Assets/newOpen.png" Stretch="UniformToFill"/>
+                </Button>
+            </Grid>
+        </Border>
+        <Border Grid.Row="1" BorderBrush="#E8E8E8" BorderThickness="0 0 0 1">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Image Grid.Column="0" Source="Assets/headphones.png" Width="32" Height="32" Margin="20 5 0 0" />
+                <Image Grid.Column="1" Source="Assets/play-button.png" Width="32" Height="32" Margin="20 5 0 0 " />
+                <RadioButton Grid.Column="3" Content="在线" Tag="online" GroupName="playMode" Width="100" ></RadioButton>
+                <RadioButton Grid.Column="4" Content="离线" Tag="offline" GroupName="playMode"></RadioButton>
+            </Grid>
+        </Border>
+        <MediaPlayerElement Grid.Row="2" x:Name="player" AreTransportControlsEnabled="True"/>
+        <TextBlock Grid.Row="3" Name="errlog"></TextBlock>
     </Grid>
 </Page>
